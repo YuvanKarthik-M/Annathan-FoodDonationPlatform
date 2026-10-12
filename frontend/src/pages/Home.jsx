@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Clock, MapPin, ArrowRight, Utensils, ShieldCheck, Globe } from 'lucide-react';
+import { API_BASE_URL } from '../api';
 
 // Leaflet Imports
 import { MapContainer, TileLayer, Marker, Circle, Popup } from 'react-leaflet';
@@ -22,7 +23,7 @@ export default function Home() {
   const [ngos, setNgos] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/public/ngos')
+    fetch(`${API_BASE_URL}/api/public/ngos`)
       .then(res => res.json())
       .then(data => setNgos(data))
       .catch(e => console.error(e));
@@ -32,9 +33,9 @@ export default function Home() {
     <div className="min-h-screen">
       <nav className="navbar">
         <div className="container flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <Heart size={32} className="text-primary" />
-            <span className="font-bold text-4xl tracking-tighter" style={{ background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Annathan</span>
+          <div className="flex items-center gap-4">
+            <img src="/icon.png" alt="Annathan Logo" style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+            <h1 style={{ background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Annathan</h1>
           </div>
           <div className="flex gap-4 items-center">
             <a href="#coverage" className="text-sm text-muted hover:text-primary transition-colors font-bold tracking-widest uppercase">Available Area</a>

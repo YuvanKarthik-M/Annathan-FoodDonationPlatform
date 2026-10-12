@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Activity, Settings, LogOut, Package, Users, Bell, MapPin, Clock, Map as MapIcon, Crosshair, Trash2, ShieldCheck, ArrowRight, Trophy, TrendingUp, Power, Mail, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../api';
 
 // Leaflet Map Imports
 import { MapContainer, TileLayer, Marker, useMapEvents, Circle } from 'react-leaflet';
@@ -57,7 +58,7 @@ export const ProfileTab = ({ user, setUser }) => {
 
   useEffect(() => {
     if (!user || !user.id) return;
-    fetch(`http://localhost:5000/api/users/${user.id}`)
+    fetch(`${API_BASE_URL}/api/users/${user.id}`)
       .then(res => res.json())
       .then(data => {
         setFormData({ name: data.name || '', phone: data.phone || '', profilePicture: data.profilePicture || '' });
@@ -75,7 +76,7 @@ export const ProfileTab = ({ user, setUser }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const res = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${user.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData)
@@ -139,8 +140,8 @@ export function DashboardLayout({ user, role, children, activeTab, setActiveTab 
       {/* Sidebar */}
       <div style={{ width: '260px', minWidth: '260px', background: 'var(--surface)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', height: '100vh' }}>
         <div style={{ padding: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border)' }}>
-          <Heart className="text-primary" size={24} />
-          <span className="font-bold text-xl text-main">Annathan</span>
+          <img src="/icon.png" alt="Annathan Logo" style={{ width: '37px', height: '37px', objectFit: 'contain' }} />
+          <h2>Annathan</h2>
         </div>
 
         <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -197,7 +198,7 @@ export function DashboardLayout({ user, role, children, activeTab, setActiveTab 
       {/* Main Content */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <header style={{ background: 'var(--surface)', padding: '1.25rem 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
-          <h2 className="font-bold text-xl">{user ? `Welcome, ${user.name}` : `Loading...`} | <span className="text-primary">{role.toUpperCase()} AI Auto-Dispatcher</span></h2>
+          <h2 className="font-bold text-xl">{user ? `Welcome, ${user.name}` : `Loading...`} | <span className="text-primary">{role.toUpperCase()}</span></h2>
           <div className="flex items-center gap-4">
             <button onClick={() => setActiveTab('profile')} style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', overflow: 'hidden', padding: 0, border: 'none', cursor: 'pointer' }}>
               {user && user.profilePicture ? <img src={user.profilePicture} alt="User" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : role.charAt(0).toUpperCase()}
@@ -243,7 +244,7 @@ export const DonorDashboard = () => {
 
   const fetchHistory = async (donorId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/donations/history?donorId=${donorId}`);
+      const res = await fetch(`${API_BASE_URL}/api/donations/history?donorId=${donorId}`);
       if (res.ok) setHistory(await res.json());
     } catch (e) { }
   };
@@ -253,7 +254,7 @@ export const DonorDashboard = () => {
     if (!position) return alert("Please drop a pin on the map!");
 
     const isEdit = !!formData._id;
-    const url = isEdit ? `http://localhost:5000/api/donations/${formData._id}/edit` : 'http://localhost:5000/api/donations';
+    const url = isEdit ? `${API_BASE_URL}/api/donations/${formData._id}/edit` : `${API_BASE_URL}/api/donations`;
     const method = isEdit ? 'PUT' : 'POST';
 
     try {
@@ -286,7 +287,7 @@ export const DonorDashboard = () => {
   const deleteDonation = async (id) => {
     if (!window.confirm("Are you sure you want to remove this donation request?")) return;
     try {
-      const res = await fetch(`http://localhost:5000/api/donations/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE_URL}/api/donations/${id}`, { method: 'DELETE' });
       if (res.ok) {
         fetchHistory(user.id);
         alert("Donation removed.");
@@ -316,14 +317,14 @@ export const DonorDashboard = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
             <div className="card card-glow" style={{ borderTop: '4px solid #3b82f6', background: 'linear-gradient(135deg, var(--surface) 0%, #172554 100%)' }}>
               <div className="flex justify-between items-center p-4">
-                <h2 style={{ color: '#3b82f6', fontSize: '1.25rem', fontWeight: 600 }}>Total Completed</h2>
+                <h2 style={{ color: '#3b82f6', fontSize: '1.25rem', fontWeight: 600 }}>Total Donations</h2>
                 <h2 style={{ color: '#3b82f6', fontSize: '2rem', fontWeight: 700 }}>{history.filter(d => d.status === 'completed').length}</h2>
               </div>
             </div>
 
             <div className="card card-glow" style={{ borderTop: '4px solid #f59e0b', background: 'linear-gradient(135deg, var(--surface) 0%, #451a03 100%)' }}>
               <div className="flex justify-between items-center p-4">
-                <h2 style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: 600 }}>Active Requests</h2>
+                <h2 style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: 600 }}>Active Donations</h2>
                 <h2 style={{ color: '#f59e0b', fontSize: '2rem', fontWeight: 700 }}>{history.filter(d => d.status === 'pending' || d.status === 'accepted').length}</h2>
               </div>
             </div>
@@ -371,7 +372,7 @@ export const DonorDashboard = () => {
                               (d.allRejected ? 'Rejected by all nearby NGOs' : 'Awaiting NGO Acceptance')))
                       }</p>
                       {d.status === 'completed' && (
-                        <p className="text-xs text-muted mb-1 flex items-center gap-1">
+                        <p className="text-xs text-muted mb-1 flex items-center gap-2">
                           <Clock size={13} className="text-primary inline" />
                           <strong>Time Collected:</strong> {new Date(d.collectedAt || d.updatedAt || d.createdAt).toLocaleString()}
                         </p>
@@ -493,7 +494,7 @@ export const NgoDashboard = () => {
         setIsOnline(savedUser.isOnline !== false);
         // Refresh online status and profile from backend
         try {
-          const res = await fetch(`http://localhost:5000/api/users/${savedUser.id}`);
+          const res = await fetch(`${API_BASE_URL}/api/users/${savedUser.id}`);
           if (res.ok) {
             const data = await res.json();
             if (data && typeof data.isOnline === 'boolean') {
@@ -527,7 +528,7 @@ export const NgoDashboard = () => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
 
     try {
-      await fetch(`http://localhost:5000/api/users/${user.id}/status`, {
+      await fetch(`${API_BASE_URL}/api/users/${user.id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isOnline: nextStatus })
@@ -543,11 +544,11 @@ export const NgoDashboard = () => {
       const lat = userObj.location?.coordinates[1] || hqPosition.lat;
 
       // 1. Fetch pending requests mapped to this NGO (AI MATCHED or NEARBY)
-      const resPending = await fetch(`http://localhost:5000/api/donations?ngoId=${userObj.id}&lat=${lat}&lng=${lng}`);
+      const resPending = await fetch(`${API_BASE_URL}/api/donations?ngoId=${userObj.id}&lat=${lat}&lng=${lng}`);
       if (resPending.ok) setActiveDonations(await resPending.json());
 
       // 2. Fetch history (accepted/completed/rejected) where claimedBy = me
-      const resPast = await fetch(`http://localhost:5000/api/donations/history?ngoId=${userObj.id}`);
+      const resPast = await fetch(`${API_BASE_URL}/api/donations/history?ngoId=${userObj.id}`);
       if (resPast.ok) setPastDonations(await resPast.json());
 
     } catch (e) { }
@@ -555,7 +556,7 @@ export const NgoDashboard = () => {
 
   const updateDonationStatus = async (id, status) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/donations/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/donations/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status, ngoId: user.id })
@@ -572,7 +573,7 @@ export const NgoDashboard = () => {
 
   const saveHqLocation = async () => {
     if (user && hqPosition) {
-      await fetch(`http://localhost:5000/api/users/${user.id}/location`, {
+      await fetch(`${API_BASE_URL}/api/users/${user.id}/location`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lat: hqPosition.lat, lng: hqPosition.lng })
@@ -612,20 +613,20 @@ export const NgoDashboard = () => {
             </div>
 
             {/* Status Online/Offline Component on the right side */}
-            <div className="card card-glow" style={{ 
-              borderTop: isOnline ? '4px solid #10b981' : '4px solid #ef4444', 
+            <div className="card card-glow" style={{
+              borderTop: isOnline ? '4px solid #10b981' : '4px solid #ef4444',
               background: isOnline ? 'linear-gradient(135deg, var(--surface) 0%, #064e3b 100%)' : 'linear-gradient(135deg, var(--surface) 0%, #450a0a 100%)',
               transition: 'all 0.3s ease'
             }}>
               <div className="flex justify-between items-center p-4">
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <div style={{ 
-                      width: '10px', 
-                      height: '10px', 
-                      borderRadius: '50%', 
-                      background: isOnline ? '#10b981' : '#ef4444', 
-                      boxShadow: isOnline ? '0 0 10px #10b981' : '0 0 10px #ef4444' 
+                    <div style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      background: isOnline ? '#10b981' : '#ef4444',
+                      boxShadow: isOnline ? '0 0 10px #10b981' : '0 0 10px #ef4444'
                     }}></div>
                     <h2 style={{ color: isOnline ? '#10b981' : '#ef4444', fontSize: '1.25rem', fontWeight: 700 }}>
                       {isOnline ? 'ONLINE' : 'OFFLINE'}
@@ -850,7 +851,7 @@ export const NgoDashboard = () => {
                       {d.donorId?.name && (
                         <div className="flex items-center gap-2 text-muted">
                           <Users size={15} className="text-emerald-400 flex-shrink-0" />
-                          <span><strong>Donor:</strong> {d.donorId.name} {d.donorId?.phone ? `(${d.donorId.phone})` : ''}</span>
+                          <span><strong>Donor:</strong> {d.donorId.name}</span>
                         </div>
                       )}
                     </div>
@@ -882,17 +883,17 @@ export const AdminDashboard = () => {
   }, [activeTab]);
 
   const fetchStats = async () => {
-    const res = await fetch('http://localhost:5000/api/admin/stats');
+    const res = await fetch(`${API_BASE_URL}/api/admin/stats`);
     if (res.ok) setStats(await res.json());
   };
 
   const fetchNgos = async () => {
-    const res = await fetch('http://localhost:5000/api/admin/ngos');
+    const res = await fetch(`${API_BASE_URL}/api/admin/ngos`);
     if (res.ok) setNgos(await res.json());
   };
 
   const toggleBlock = async (id) => {
-    await fetch(`http://localhost:5000/api/admin/ngos/${id}/toggle-block`, { method: 'PUT' });
+    await fetch(`${API_BASE_URL}/api/admin/ngos/${id}/toggle-block`, { method: 'PUT' });
     fetchNgos();
   };
 
@@ -900,7 +901,7 @@ export const AdminDashboard = () => {
     e.preventDefault();
     setIsAddingAdmin(true);
     try {
-      const res = await fetch('http://localhost:5000/api/admin/add-admin', {
+      const res = await fetch(`${API_BASE_URL}/api/admin/add-admin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(adminData)
