@@ -48,7 +48,7 @@ app.post('/api/auth/login', async (req, res) => {
     
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
-    res.json({ message: 'Login successful', user: { id: user._id, name: user.name, role: user.role, location: user.location } });
+    res.json({ message: 'Login successful', user: { id: user._id, name: user.name, role: user.role, location: user.location, isOnline: user.isOnline ?? true } });
   } catch (error) { res.status(500).json({ message: 'Server error' }); }
 });
 
@@ -75,10 +75,11 @@ app.post('/api/donations', async (req, res) => {
       location: { type: 'Point', coordinates: donorCoords }
     });
 
-    // Sequential Assignment Logic: Find the single nearest NGO within 50km
+    // Sequential Assignment Logic: Find the single nearest NGO within 50km that is online and active
     const nearestNgo = await User.findOne({
       role: 'ngo',
       isBlocked: false,
+      isOnline: { $ne: false },
       location: {
         $near: {
           $geometry: { type: 'Point', coordinates: donorCoords },
@@ -118,7 +119,7 @@ app.get('/api/donations', async (req, res) => {
     
     // Sort and Populate
     combined.sort((a, b) => new Date(a.timeLimit) - new Date(b.timeLimit));
-    await Donation.populate(combined, { path: 'donorId', select: 'name phone' });
+    await Donation.populate(combined, { path: 'donorId', select: 'name email phone' });
 
     res.json(combined);
   } catch (error) { 
@@ -148,7 +149,11 @@ app.put('/api/donations/:id', async (req, res) => {
     }
 
     let update = { status };
-    if (status === 'accepted' || status === 'completed') update.claimedBy = ngoId;
+    if (status === 'accepted') update.claimedBy = ngoId;
+    if (status === 'completed') {
+      update.claimedBy = ngoId;
+      update.collectedAt = new Date();
+    }
     
     // IF rejected, find the NEXT nearest NGO within 50km
     if (status === 'rejected') {
@@ -158,10 +163,11 @@ app.put('/api/donations/:id', async (req, res) => {
        // Record this rejection
        const updatedRejected = [...donation.rejectedBy, rejectedNgoId];
        
-       // Find next nearest
+       // Find next nearest online NGO
        const nextNgo = await User.findOne({
          role: 'ngo',
          isBlocked: false,
+         isOnline: { $ne: false },
          _id: { $nin: updatedRejected },
          location: {
            $near: {
@@ -217,7 +223,7 @@ app.get('/api/donations/history', async (req, res) => {
     let query = {};
     if (donorId) query.donorId = donorId;
     if (ngoId) query.claimedBy = ngoId;
-    const donations = await Donation.find(query).populate('donorId', 'name phone').populate('claimedBy', 'name email phone').sort({ createdAt: -1 });
+    const donations = await Donation.find(query).populate('donorId', 'name email phone').populate('claimedBy', 'name email phone').sort({ createdAt: -1 });
     
     // For donor history, we might want to flag if all nearby NGOs have rejected it
     const enhanced = await Promise.all(donations.map(async d => {
@@ -286,6 +292,14 @@ app.put('/api/users/:id', async (req, res) => {
   try {
     const { name, phone, profilePicture } = req.body;
     const user = await User.findByIdAndUpdate(req.params.id, { name, phone, profilePicture }, { new: true, select: '-password' });
+    res.json(user);
+  } catch(e) { res.status(500).json({message: 'Server error'}) }
+});
+
+app.put('/api/users/:id/status', async (req, res) => {
+  try {
+    const { isOnline } = req.body;
+    const user = await User.findByIdAndUpdate(req.params.id, { isOnline }, { new: true, select: '-password' });
     res.json(user);
   } catch(e) { res.status(500).json({message: 'Server error'}) }
 });

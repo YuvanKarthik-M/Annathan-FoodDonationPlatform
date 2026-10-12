@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Activity, Settings, LogOut, Package, Users, Bell, MapPin, Clock, Map as MapIcon, Crosshair, Trash2, ShieldCheck, ArrowRight, Trophy, TrendingUp } from 'lucide-react';
+import { Heart, Activity, Settings, LogOut, Package, Users, Bell, MapPin, Clock, Map as MapIcon, Crosshair, Trash2, ShieldCheck, ArrowRight, Trophy, TrendingUp, Power, Mail, CheckCircle2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 // Leaflet Map Imports
@@ -157,10 +157,10 @@ export function DashboardLayout({ user, role, children, activeTab, setActiveTab 
           {role === 'ngo' && (
             <>
               <button onClick={() => setActiveTab('hq')} className="flex items-center gap-4 w-full" style={getNavStyle('hq')}>
-                <MapPin size={20} /> Setup HQ Base
+                <MapPin size={20} /> Location
               </button>
               <button onClick={() => setActiveTab('donations')} className="flex items-center gap-4 w-full" style={getNavStyle('donations')}>
-                <Package size={20} /> AI Requests
+                <Package size={20} /> Donations
               </button>
             </>
           )}
@@ -268,7 +268,7 @@ export const DonorDashboard = () => {
           alert("✅ Donation details updated successfully!");
         } else {
           if (!data.assignedNgoId) {
-            alert("⚠️ NOTICE: There are currently no NGOs available within a 50km radius. Your request will remain active in the system for when one becomes available.");
+            alert("⚠️ NOTICE: There are currently no NGOs available within a 50km radius. Your request will remain active in the system till one becomes available.");
           } else {
             alert(`✅ SUCCESS! Your request has been assigned to the nearest NGO within 50km. If they pass, our AI will automatically route it to the next nearest partner!`);
           }
@@ -309,33 +309,23 @@ export const DonorDashboard = () => {
       {activeTab === 'home' && (
         <div>
           <div style={{ marginBottom: '2.5rem' }}>
-            <h3 className="font-bold text-2xl mb-2">Impact Dashboard</h3>
+            <h2 className="font-bold text-2xl mb-2">Impact Dashboard</h2>
             <p className="text-muted">Tracking your contribution toward ending hunger in your local community.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
             <div className="card card-glow" style={{ borderTop: '4px solid #3b82f6', background: 'linear-gradient(135deg, var(--surface) 0%, #172554 100%)' }}>
-              <div className="flex justify-between items-start mb-4">
-                <div style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '0.75rem', borderRadius: '0.75rem', color: '#3b82f6' }}>
-                  <Trophy size={24} />
-                </div>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>PLATINUM DONOR</span>
+              <div className="flex justify-between items-center p-4">
+                <h2 style={{ color: '#3b82f6', fontSize: '1.25rem', fontWeight: 600 }}>Total Completed</h2>
+                <h2 style={{ color: '#3b82f6', fontSize: '2rem', fontWeight: 700 }}>{history.filter(d => d.status === 'completed').length}</h2>
               </div>
-              <h3 className="text-muted text-sm font-semibold mb-1">Total Impact Count</h3>
-              <p className="text-4xl font-bold" style={{ color: '#3b82f6' }}>{history.filter(d => d.status === 'completed').length}</p>
-              <p className="text-xs text-muted mt-2">Meals successfully delivered to people in need</p>
             </div>
 
-            <div className="card card-glow" onClick={() => setActiveTab('donate')} style={{ borderTop: '4px solid #f59e0b', cursor: 'pointer', background: 'linear-gradient(135deg, var(--surface) 0%, #451a03 100%)' }}>
-              <div className="flex justify-between items-start mb-4">
-                <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '0.75rem', borderRadius: '0.75rem', color: '#f59e0b' }}>
-                  <Package size={24} />
-                </div>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>READY TO SHARE</span>
+            <div className="card card-glow" style={{ borderTop: '4px solid #f59e0b', background: 'linear-gradient(135deg, var(--surface) 0%, #451a03 100%)' }}>
+              <div className="flex justify-between items-center p-4">
+                <h2 style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: 600 }}>Active Requests</h2>
+                <h2 style={{ color: '#f59e0b', fontSize: '2rem', fontWeight: 700 }}>{history.filter(d => d.status === 'pending' || d.status === 'accepted').length}</h2>
               </div>
-              <h3 className="text-muted text-sm font-semibold mb-1">Start New Donation</h3>
-              <p className="text-4xl font-bold" style={{ color: '#f59e0b' }}>Donate <ArrowRight size={24} className="inline" /></p>
-              <p className="text-xs text-muted mt-2">Instantly connect with the nearest NGO</p>
             </div>
           </div>
 
@@ -350,50 +340,56 @@ export const DonorDashboard = () => {
                   <div key={d._id} style={{ background: 'var(--bg-color)', padding: '1.5rem', borderRadius: '0.5rem', borderLeft: '4px solid var(--primary)', display: 'flex', gap: '1.5rem' }}>
                     {d.image && <img src={d.image} alt="Food" style={{ width: '100px', height: '100px', borderRadius: '0.5rem', objectFit: 'cover' }} />}
                     <div style={{ flex: 1 }}>
-                    <div className="flex justify-between items-center mb-2">
-                       <h4 className="font-bold">{d.foodType} ({d.quantity})</h4>
-                      <div className="flex items-center gap-2">
-                        {d.status === 'pending' && !(new Date(d.timeLimit) < new Date()) && (
-                          <div className="flex gap-2 mr-4">
-                            {!d.allRejected && <button onClick={() => startEdit(d)} className="text-xs text-primary hover:underline">Edit</button>}
-                            <button onClick={() => deleteDonation(d._id)} className="hover:scale-125 transition-transform" style={{ color: 'var(--danger)', background: 'none', border: 'none', padding: '0.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                              <Trash2 size={18} />
-                            </button>
-                          </div>
-                        )}
-                        {/* DYNAMIC STATUS BADGE */}
-                        <span style={{
-                          fontSize: '0.75rem',
-                          padding: '0.2rem 0.5rem',
-                          background: 'var(--surface)',
-                          borderRadius: '0.25rem',
-                          fontWeight: 'bold',
-                          color: d.status === 'accepted' ? '#10b981' : d.status === 'completed' ? '#3b82f6' : (new Date(d.timeLimit) < new Date() ? '#ef4444' : (d.allRejected ? '#ef4444' : '#f59e0b'))
-                        }}>
-                          {d.status === 'accepted' ? 'ACCEPTED' : (d.status === 'completed' ? 'COMPLETED' : (new Date(d.timeLimit) < new Date() ? 'EXPIRED' : (d.allRejected ? 'REJECTED' : 'PENDING')))}
-                        </span>
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-bold">{d.foodType} ({d.quantity})</h4>
+                        <div className="flex items-center gap-2">
+                          {d.status === 'pending' && !(new Date(d.timeLimit) < new Date()) && (
+                            <div className="flex gap-2 mr-4">
+                              {!d.allRejected && <button onClick={() => startEdit(d)} className="text-xs text-primary hover:underline">Edit</button>}
+                              <button onClick={() => deleteDonation(d._id)} className="hover:scale-125 transition-transform" style={{ color: 'var(--danger)', background: 'none', border: 'none', padding: '0.2rem', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                                <Trash2 size={18} />
+                              </button>
+                            </div>
+                          )}
+                          {/* DYNAMIC STATUS BADGE */}
+                          <span style={{
+                            fontSize: '0.75rem',
+                            padding: '0.2rem 0.5rem',
+                            background: 'var(--surface)',
+                            borderRadius: '0.25rem',
+                            fontWeight: 'bold',
+                            color: d.status === 'accepted' ? '#10b981' : d.status === 'completed' ? '#3b82f6' : (new Date(d.timeLimit) < new Date() ? '#ef4444' : (d.allRejected ? '#ef4444' : '#f59e0b'))
+                          }}>
+                            {d.status === 'accepted' ? 'ACCEPTED' : (d.status === 'completed' ? 'COMPLETED' : (new Date(d.timeLimit) < new Date() ? 'EXPIRED' : (d.allRejected ? 'REJECTED' : 'PENDING')))}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <p className="text-sm text-muted mb-1"><strong>Status:</strong> {
-                      d.status === 'accepted' ? 'Assigned & En Route' :
-                        (d.status === 'completed' ? 'Completed' :
-                          (new Date(d.timeLimit) < new Date() ? 'Time Limit Reached' :
-                            (d.allRejected ? 'Rejected by all nearby NGOs' : 'Awaiting NGO Acceptance')))
-                    }</p>
+                      <p className="text-sm text-muted mb-1"><strong>Status:</strong> {
+                        d.status === 'accepted' ? 'Assigned & En Route' :
+                          (d.status === 'completed' ? 'Completed' :
+                            (new Date(d.timeLimit) < new Date() ? 'Time Limit Reached' :
+                              (d.allRejected ? 'Rejected by all nearby NGOs' : 'Awaiting NGO Acceptance')))
+                      }</p>
+                      {d.status === 'completed' && (
+                        <p className="text-xs text-muted mb-1 flex items-center gap-1">
+                          <Clock size={13} className="text-primary inline" />
+                          <strong>Time Collected:</strong> {new Date(d.collectedAt || d.updatedAt || d.createdAt).toLocaleString()}
+                        </p>
+                      )}
 
-                    {d.allRejected && (
-                      <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.75rem', borderRadius: '0.5rem', marginTop: '0.75rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Bell size={16} />
-                        <span>All nearby NGOs have passed this request. You may want to edit details or increase quantity to attract more help!</span>
-                      </div>
-                    )}
-                    {d.claimedBy && (
-                      <div style={{ background: 'var(--surface)', padding: '0.75rem', borderRadius: '0.5rem', marginTop: '0.5rem' }}>
-                        <p className="text-sm font-bold text-primary mb-1">Claimed By: {d.claimedBy.name}</p>
-                        <p className="text-xs text-muted">Phone: {d.claimedBy.phone || 'N/A'}</p>
-                        <p className="text-xs text-muted">Email: {d.claimedBy.email}</p>
-                      </div>
-                    )}
+                      {d.allRejected && (
+                        <div style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', padding: '0.75rem', borderRadius: '0.5rem', marginTop: '0.75rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Bell size={16} />
+                          <span>All nearby NGOs have passed this request. You may want to edit details or increase quantity to attract more help!</span>
+                        </div>
+                      )}
+                      {d.claimedBy && (
+                        <div style={{ background: 'var(--surface)', padding: '0.75rem', borderRadius: '0.5rem', marginTop: '0.5rem' }}>
+                          <p className="text-sm font-bold text-primary mb-1">Claimed By: {d.claimedBy.name}</p>
+                          <p className="text-xs text-muted">Phone: {d.claimedBy.phone || 'N/A'}</p>
+                          <p className="text-xs text-muted">Email: {d.claimedBy.email}</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -404,7 +400,7 @@ export const DonorDashboard = () => {
       )}
 
       {activeTab === 'donate' && (
-        <div className="card" style={{ maxWidth: '800px' }}>
+        <div className="card" style={{ maxWidth: '1000px' }}>
           <h3 className="font-bold text-lg mb-1">{formData._id ? 'Edit Your Donation' : 'Post a New Food Donation'}</h3>
           <p className="text-muted mb-6 text-sm">{formData._id ? 'Update the details of your active donation request.' : 'Tap on the map below exactly where the food is. Our AI will automatically assign it to the nearest NGO base!'}</p>
 
@@ -481,6 +477,7 @@ export const DonorDashboard = () => {
 export const NgoDashboard = () => {
   const [activeTab, setActiveTab] = useState('home');
   const [user, setUser] = useState(null);
+  const [isOnline, setIsOnline] = useState(true);
 
   const [activeDonations, setActiveDonations] = useState([]);
   const [pastDonations, setPastDonations] = useState([]);
@@ -493,6 +490,21 @@ export const NgoDashboard = () => {
       const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
       if (savedUser.id) {
         setUser(savedUser);
+        setIsOnline(savedUser.isOnline !== false);
+        // Refresh online status and profile from backend
+        try {
+          const res = await fetch(`http://localhost:5000/api/users/${savedUser.id}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && typeof data.isOnline === 'boolean') {
+              setIsOnline(data.isOnline);
+              const merged = { ...savedUser, ...data };
+              localStorage.setItem('user', JSON.stringify(merged));
+              setUser(merged);
+            }
+          }
+        } catch (e) { }
+
         if (savedUser.location && savedUser.location.coordinates) {
           setHqPosition({
             lng: savedUser.location.coordinates[0] || 80.2707,
@@ -505,6 +517,25 @@ export const NgoDashboard = () => {
     };
     fetchUser();
   }, [activeTab]);
+
+  const toggleOnlineStatus = async () => {
+    if (!user) return;
+    const nextStatus = !isOnline;
+    setIsOnline(nextStatus);
+    const updatedUser = { ...user, isOnline: nextStatus };
+    setUser(updatedUser);
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+
+    try {
+      await fetch(`http://localhost:5000/api/users/${user.id}/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isOnline: nextStatus })
+      });
+    } catch (e) {
+      console.error('Failed to update status', e);
+    }
+  };
 
   const fetchDonationsData = async (userObj) => {
     try {
@@ -565,47 +596,72 @@ export const NgoDashboard = () => {
             <p className="text-muted">Managing incoming surplus food and tracking delivery operations.</p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
             <div className="card card-glow" style={{ borderTop: '4px solid #a855f7', background: 'linear-gradient(135deg, var(--surface) 0%, #2e1065 100%)' }}>
-              <div className="flex justify-between items-start mb-4">
-                <div style={{ background: 'rgba(168, 85, 247, 0.1)', padding: '0.75rem', borderRadius: '0.75rem', color: '#a855f7' }}>
-                  <TrendingUp size={24} />
-                </div>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, background: 'rgba(168, 85, 247, 0.1)', color: '#a855f7', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>PERFORMANCE</span>
+              <div className="flex justify-between items-center p-4">
+                <h2 style={{ color: '#a855f7', fontSize: '1.25rem', fontWeight: 600 }}>Total Operations</h2>
+                <h2 style={{ color: '#a855f7', fontSize: '2rem', fontWeight: 700 }}>{pastDonations.filter(d => d.status === 'completed').length}</h2>
               </div>
-              <h3 className="text-muted text-sm font-semibold mb-1">Total Operations</h3>
-              <p className="text-4xl font-bold" style={{ color: '#a855f7' }}>{pastDonations.filter(d => d.status === 'completed').length}</p>
-              <p className="text-xs text-muted mt-2">Food packages safely routed and delivered</p>
             </div>
 
             <div className="card card-glow" onClick={() => setActiveTab('donations')} style={{ borderTop: '4px solid #0ea5e9', cursor: 'pointer', background: 'linear-gradient(135deg, var(--surface) 0%, #082f49 100%)' }}>
-              <div className="flex justify-between items-start mb-4">
-                <div style={{ background: 'rgba(14, 165, 233, 0.1)', padding: '0.75rem', borderRadius: '0.75rem', color: '#0ea5e9' }}>
-                  <Activity size={24} />
-                </div>
-                <span style={{ fontSize: '0.7rem', fontWeight: 800, background: 'rgba(14, 165, 233, 0.1)', color: '#0ea5e9', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>AI RADAR</span>
+              <div className="flex justify-between items-center p-4">
+                <h2 style={{ color: '#0ea5e9', fontSize: '1.25rem', fontWeight: 600 }}>Active Requests</h2>
+                <h2 style={{ color: '#0ea5e9', fontSize: '2rem', fontWeight: 700 }}>{activeDonations.length}</h2>
               </div>
-              <h3 className="text-muted text-sm font-semibold mb-1">Incoming Requests</h3>
-              <p className="text-4xl font-bold" style={{ color: '#0ea5e9' }}>{activeDonations.length} <ArrowRight size={24} className="inline" /></p>
-              <p className="text-xs text-muted mt-2">Active matching in 50km radius</p>
             </div>
-          </div>
 
-          <div className="card mb-8">
-            <h3 className="font-bold text-xl mb-4">Operational Status</h3>
-            <div style={{ background: 'var(--bg-color)', border: '1px solid var(--border)', padding: '1.5rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981', boxShadow: '0 0 10px #10b981' }}></div>
-              <div>
-                <p className="font-bold">System Status: ONLINE</p>
-                <p className="text-sm text-muted">Awaiting donor broadcast in your 50km sequential routing chain.</p>
+            {/* Status Online/Offline Component on the right side */}
+            <div className="card card-glow" style={{ 
+              borderTop: isOnline ? '4px solid #10b981' : '4px solid #ef4444', 
+              background: isOnline ? 'linear-gradient(135deg, var(--surface) 0%, #064e3b 100%)' : 'linear-gradient(135deg, var(--surface) 0%, #450a0a 100%)',
+              transition: 'all 0.3s ease'
+            }}>
+              <div className="flex justify-between items-center p-4">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div style={{ 
+                      width: '10px', 
+                      height: '10px', 
+                      borderRadius: '50%', 
+                      background: isOnline ? '#10b981' : '#ef4444', 
+                      boxShadow: isOnline ? '0 0 10px #10b981' : '0 0 10px #ef4444' 
+                    }}></div>
+                    <h2 style={{ color: isOnline ? '#10b981' : '#ef4444', fontSize: '1.25rem', fontWeight: 700 }}>
+                      {isOnline ? 'ONLINE' : 'OFFLINE'}
+                    </h2>
+                  </div>
+                  <p className="text-xs text-muted">{isOnline ? 'Receiving Auto-Dispatches' : 'Dispatch Paused'}</p>
+                </div>
+                <button
+                  onClick={toggleOnlineStatus}
+                  className="btn"
+                  title={isOnline ? 'Go Offline' : 'Go Online'}
+                  style={{
+                    padding: '0.45rem 0.9rem',
+                    fontSize: '0.8rem',
+                    fontWeight: 700,
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.4rem',
+                    border: isOnline ? '1px solid #10b981' : '1px solid #ef4444',
+                    background: isOnline ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                    color: isOnline ? '#34d399' : '#f87171'
+                  }}
+                >
+                  <Power size={14} />
+                  {isOnline ? 'Go Offline' : 'Go Online'}
+                </button>
               </div>
             </div>
           </div>
 
           <div className="card mb-8" style={{ borderTop: '4px solid #10b981' }}>
-            <h3 className="font-bold text-lg mb-4 text-emerald-500">Currently Collecting (En Route)</h3>
+            <h3 className="font-bold text-lg mb-4 text-emerald-500">Accepted Requests</h3>
             {pastDonations.filter(d => d.status === 'accepted').length === 0 ? (
-              <p className="text-muted">No active collections. Claim a package from the AI Requests tab!</p>
+              <p className="text-muted">No accepted donations. Claim a package from the Requests tab</p>
             ) : (
               <div className="flex-col gap-6" style={{ display: 'flex' }}>
                 {pastDonations.filter(d => d.status === 'accepted').map(d => (
@@ -643,9 +699,9 @@ export const NgoDashboard = () => {
           </div>
 
           <div className="card">
-            <h3 className="font-bold text-lg mb-4">Urgent AI Assigned Requests</h3>
+            <h3 className="font-bold text-lg mb-4">Pending Requests</h3>
             {activeDonations.length === 0 ? (
-              <p className="text-muted">No active donations at the moment. You're all caught up!</p>
+              <p className="text-muted">No active donations at the moment. You're all caught up</p>
             ) : (
               <div className="flex gap-4" style={{ overflowX: 'auto', paddingBottom: '1rem' }}>
                 {activeDonations.map(d => (
@@ -664,9 +720,9 @@ export const NgoDashboard = () => {
       )}
 
       {activeTab === 'hq' && (
-        <div className="card" style={{ maxWidth: '800px' }}>
-          <h3 className="font-bold text-lg mb-1">Set Your Base Location HQ</h3>
-          <p className="text-muted mb-4 text-sm">Our AI Engine will use your exact coordinates below to route the nearest donor packages directly to your dashboard.</p>
+        <div className="card">
+          <h3 className="font-bold text-lg mb-1">Set Your Location</h3>
+          <p className="text-muted mb-4 text-sm">Your exact coordinates below would be used to route the nearest donor packages directly to your dashboard.</p>
 
           <div style={{ height: '400px', width: '100%', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border)', marginBottom: '1.5rem' }}>
             <MapContainer center={[hqPosition.lat, hqPosition.lng]} zoom={12} style={{ height: '100%', width: '100%' }}>
@@ -691,7 +747,7 @@ export const NgoDashboard = () => {
             {activeDonations.length === 0 ? (
               <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '2rem', textAlign: 'center', borderRadius: '0.5rem', border: '1px dashed var(--border)' }}>
                 <Crosshair size={48} className="text-muted mx-auto mb-2" style={{ opacity: 0.5, margin: '0 auto' }} />
-                <p className="text-muted">Radar Clear. No AI packages en route.</p>
+                <p className="text-muted">No packages available currently.</p>
               </div>
             ) : (
               <div className="flex-col gap-6" style={{ display: 'flex' }}>
@@ -756,17 +812,48 @@ export const NgoDashboard = () => {
             {pastDonations.filter(d => d.status === 'completed').length === 0 ? <p className="text-muted">No completed history found.</p> : (
               <div className="flex-col gap-4" style={{ display: 'flex' }}>
                 {pastDonations.filter(d => d.status === 'completed').map(d => (
-                  <div key={d._id} className="flex justify-between items-center" style={{ padding: '1rem', border: '1px solid var(--border)', borderRadius: '0.5rem' }}>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                      {d.image && <img src={d.image} alt="Food" style={{ width: '40px', height: '40px', borderRadius: '0.25rem', objectFit: 'cover' }} />}
-                      <div>
-                        <p className="font-bold">{d.foodType}</p>
-                        <p className="text-sm text-muted">{d.address}</p>
+                  <div key={d._id} style={{ padding: '1.25rem', border: '1px solid var(--border)', borderRadius: '0.5rem', background: 'var(--bg-color)', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <div className="flex justify-between items-start">
+                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                        {d.image ? (
+                          <img src={d.image} alt="Food" style={{ width: '60px', height: '60px', borderRadius: '0.5rem', objectFit: 'cover', border: '1px solid var(--border)' }} />
+                        ) : (
+                          <div style={{ width: '60px', height: '60px', borderRadius: '0.5rem', background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                            <Package size={24} />
+                          </div>
+                        )}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-bold text-lg">{d.foodType}</h4>
+                            <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.15rem 0.5rem', background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', borderRadius: '4px' }}>
+                              Qty: {d.quantity}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted mt-1"><MapPin size={14} className="inline mr-1 text-primary" /> {d.address}</p>
+                        </div>
                       </div>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.25rem 0.6rem', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', borderRadius: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        <CheckCircle2 size={13} /> COMPLETED
+                      </span>
                     </div>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.5rem', background: 'var(--surface)', borderRadius: '0.25rem' }}>
-                      {d.status.toUpperCase()}
-                    </span>
+
+                    {/* Metadata details row: Time of Collected, Quantity, Donor Email */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', fontSize: '0.85rem' }}>
+                      <div className="flex items-center gap-2 text-muted">
+                        <Clock size={15} className="text-primary flex-shrink-0" />
+                        <span><strong>Time Collected:</strong> {new Date(d.collectedAt || d.updatedAt || d.createdAt).toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted">
+                        <Mail size={15} className="text-blue-400 flex-shrink-0" />
+                        <span><strong>Donor Email:</strong> <span className="text-blue-300 font-semibold">{d.donorId?.email || 'N/A'}</span></span>
+                      </div>
+                      {d.donorId?.name && (
+                        <div className="flex items-center gap-2 text-muted">
+                          <Users size={15} className="text-emerald-400 flex-shrink-0" />
+                          <span><strong>Donor:</strong> {d.donorId.name} {d.donorId?.phone ? `(${d.donorId.phone})` : ''}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

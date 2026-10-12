@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
   },
   serviceRadiusKm: { type: Number, default: 15 },
   isBlocked: { type: Boolean, default: false },
+  isOnline: { type: Boolean, default: true },
   profilePicture: { type: String, default: '' }
 }, { timestamps: true });
 

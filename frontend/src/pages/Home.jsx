@@ -64,7 +64,7 @@ export default function Home() {
             <span style={{ color: '#fff' }}>Into Impact.</span>
           </h1>
           <p className="hero-subtitle" style={{ fontSize: '1.25rem', marginBottom: '3rem' }}>
-            Annathan leverages geospatial AI to route surplus food from restaurants and wedding halls to verified NGOs within minutes.
+            Annathan leverages geospatial matching to route surplus food from restaurants and wedding halls to verified NGOs within minutes.
             Real-time tracking, zero waste, maximum help.
           </p>
           <div className="flex justify-center gap-6">
@@ -126,7 +126,7 @@ export default function Home() {
             </div>
             <h2 style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1.5rem', tracking: '-0.05em' }}>Available Areas</h2>
             <p className="text-muted" style={{ maxWidth: '750px', margin: '0 auto', fontSize: '1.2rem', lineHeight: '1.6' }}>
-              Join hundreds of donors and NGOs across the region. Every dot on this map represent a base of operations dedicated to feeding the hungry.
+              Join hundreds of donors and NGOs across the region. Every pin on this map represent a base of operations dedicated to feeding the hungry.
             </p>
           </div>
 

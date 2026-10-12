@@ -15,7 +15,8 @@ const donationSchema = new mongoose.Schema({
   status: { type: String, enum: ['pending', 'accepted', 'rejected', 'completed'], default: 'pending' },
   claimedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // The AI Auto-assigned NGO
-  rejectedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // Track who "passed" this request
+  rejectedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Track who "passed" this request
+  collectedAt: { type: Date }
 }, { timestamps: true });
 
 donationSchema.index({ location: '2dsphere' });
